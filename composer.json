@@ -1,0 +1,40 @@
+{
+  "name": "naran/session",
+  "description": "Simple cookie-based session plugin for WordPress",
+  "type": "wordpress-plugin",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "changwoo",
+      "email": "ep6tri@hotmail.com",
+      "role": "author",
+      "homepage": "https://blog.changwoo.pe.kr"
+    }
+  ],
+  "scripts": {
+    "daa": "@composer dump-autoload --classmap-authoritative",
+    "make-pot": "wp i18n make-pot . ./languages/nbpc.pot --domain=nbpc",
+    "version": "@php bin/sync-version.php naran-session.php",
+    "test": "vendor/bin/phpunit"
+  },
+  "scripts-descriptions": {
+    "daa": "Run `composer dump-autoload --classmap-authoritative`.",
+    "make-pot": "Create .pot file.",
+    "version": "Sync your plugin version string.",
+    "test": "Run phpunit."
+  },
+  "autoload": {
+    "files": [
+      "includes/functions.php",
+      "includes/session.php"
+    ],
+    "classmap": [
+      "includes"
+    ]
+  },
+  "version": "0.0.0",
+  "require-dev": {
+    "phpunit/phpunit": "^7"
+  },
+  "license": "GPL-2.0-or-later"
+}
