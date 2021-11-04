@@ -9,13 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-if ( ! function_exists( 'nsess_init' ) ) {
+if ( ! function_exists( 'nsess_start' ) ) {
 	/**
 	 * Initialize naran session.
 	 *
 	 * Do not call this method after headers are sent. It's useless.
 	 */
-	function nsess_init() {
+	function nsess_start() {
 		nsess()->session->initialize();
 	}
 }
@@ -27,8 +27,8 @@ if ( ! function_exists( 'nsess_get' ) ) {
 	 *
 	 * Initialization is automatic, but note that initialization must be done before headers are sent.
 	 *
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param string $key     Identifier key.
+	 * @param mixed  $default Alternative value if key not found.
 	 *
 	 * @return mixed
 	 */
@@ -44,11 +44,36 @@ if ( ! function_exists( 'nsess_set' ) ) {
 	 *
 	 * Like nsess_get, initialization is automatic.
 	 *
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param string   $key
+	 * @param mixed    $value
+	 * @param int|null $timeout
 	 */
-	function nsess_set( string $key, $value ) {
+	function nsess_set( string $key, $value, ?int $timeout = null ) {
 		nsess()->session->set( $key, $value );
+	}
+}
+
+
+if ( ! function_exists( 'nsess_has' ) ) {
+	/**
+	 * Check if session has key
+	 */
+	function nsess_has( string $key ): bool {
+		return nsess()->session->has( $key );
+	}
+}
+
+
+if ( ! function_exists( 'nsess_get_expiration' ) ) {
+	/**
+	 * Get key's expiration timeout.
+	 *
+	 * @param string $key
+	 *
+	 * @return int
+	 */
+	function nsess_get_expiration( string $key ): int {
+		return nsess()->session->get_expiration( $key );
 	}
 }
 
@@ -71,6 +96,16 @@ if ( ! function_exists( 'nsess_reset' ) ) {
 	 */
 	function nsess_reset() {
 		nsess()->session->reset();
+	}
+}
+
+
+if ( ! function_exists( 'nsess_destroy' ) ) {
+	/**
+	 * Destory session.
+	 */
+	function nsess_destroy() {
+		nsess()->session->destroy();
 	}
 }
 
@@ -106,7 +141,7 @@ if ( ! function_exists( 'nsess_default_constants' ) ) {
 
 if ( ! function_exists( 'nsess_cookie_name' ) ) {
 	function nsess_cookie_name(): string {
-		return NSESS_COOKIE_NAME ?: 'nsess';
+		return apply_filters( 'nsess_cookie_name', NSESS_COOKIE_NAME ?: 'nsess' );
 	}
 }
 
@@ -114,21 +149,22 @@ if ( ! function_exists( 'nsess_cookie_name' ) ) {
 if ( ! function_exists( 'nsess_timeout' ) ) {
 	function nsess_timeout(): int {
 		$timeout = intval( NSESS_TIMEOUT );
+		$timeout = $timeout > 0 ? $timeout : DAY_IN_SECONDS;
 
-		return $timeout > 0 ? $timeout : DAY_IN_SECONDS;
+		return apply_filters( 'nsess_timeout', $timeout );
 	}
 }
 
 
 if ( ! function_exists( 'nsess_cookie_path' ) ) {
 	function nsess_cookie_path(): string {
-		return NSESS_COOKIEPATH ?: COOKIEPATH;
+		return apply_filters( 'nsess_cookie_path', NSESS_COOKIEPATH ?: COOKIEPATH );
 	}
 }
 
 if ( ! function_exists( 'nsess_cookie_domain' ) ) {
 	function nsess_cookie_domain(): string {
-		return NSESS_COOKIE_DOMAIN ?: COOKIE_DOMAIN;
+		return apply_filters( 'nsess_cookie_domain', NSESS_COOKIE_DOMAIN ?: COOKIE_DOMAIN );
 	}
 }
 
@@ -136,16 +172,20 @@ if ( ! function_exists( 'nsess_cookie_domain' ) ) {
 if ( ! function_exists( 'nsess_secure_cookie' ) ) {
 	function nsess_secure_cookie(): bool {
 		if ( '' === NSESS_SECURE ) {
-			return is_ssl();
+			$secure_cookie = is_ssl();
 		} else {
-			return filter_var( NSESS_SECURE, FILTER_VALIDATE_BOOLEAN );
+			$secure_cookie = filter_var( NSESS_SECURE, FILTER_VALIDATE_BOOLEAN );
 		}
+
+		return apply_filters( 'nsess_secure_cookie', $secure_cookie );
 	}
 }
 
 
 if ( ! function_exists( 'nsess_http_only_cookie' ) ) {
 	function nsess_http_only_cookie(): bool {
-		return filter_var( NSESS_HTTP_ONLY, FILTER_VALIDATE_BOOLEAN );
+		$http_only = filter_var( NSESS_HTTP_ONLY, FILTER_VALIDATE_BOOLEAN );
+
+		return apply_filters( 'nsess_http_only_cookie', $http_only );
 	}
 }
