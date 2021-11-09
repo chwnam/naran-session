@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Script register
+ * NSESS: Script register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Script' ) ) {
-	class NSESS_Register_Script implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Script' ) ) {
+	abstract class NSESS_Register_Base_Script implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		public function __construct() {
@@ -26,10 +26,6 @@ if ( ! class_exists( 'NSESS_Register_Script' ) ) {
 					$item->register();
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 
 		/**

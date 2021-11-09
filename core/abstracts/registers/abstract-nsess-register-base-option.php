@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Option register
+ * NSESS: Option register base
  */
 
 /* ABSPATH check */
@@ -8,11 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Option' ) ) {
-	/**
-	 * NOTE: Add 'property-read' phpdoc to make your editor inspect option items properly.
-	 */
-	class NSESS_Register_Option implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Option' ) ) {
+	abstract class NSESS_Register_Base_Option implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		/** @var array Key: alias, value: option_name */
@@ -44,17 +41,6 @@ if ( ! class_exists( 'NSESS_Register_Option' ) ) {
 					$this->fields[ $alias ] = $item->get_option_name();
 				}
 			}
-		}
-
-		/**
-		 * Define items here.
-		 *
-		 * To use alias, do not forget to return generator as 'key => value' form!
-		 *
-		 * @return Generator
-		 */
-		public function get_items(): Generator {
-			yield null;
 		}
 	}
 }

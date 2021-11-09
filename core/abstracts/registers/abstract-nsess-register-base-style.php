@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Style register
+ * NSESS: Style register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Style' ) ) {
-	class NSESS_Register_Style implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Style' ) ) {
+	abstract class NSESS_Register_Base_Style implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		public function __construct() {
@@ -26,10 +26,6 @@ if ( ! class_exists( 'NSESS_Register_Style' ) ) {
 					$item->register();
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 
 		/**

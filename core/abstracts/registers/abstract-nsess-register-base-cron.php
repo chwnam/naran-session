@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Cron register
+ * NSESS: Cron register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Cron' ) ) {
-	class NSESS_Register_Cron implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Cron' ) ) {
+	abstract class NSESS_Register_Base_Cron implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		public function __construct() {
@@ -31,10 +31,6 @@ if ( ! class_exists( 'NSESS_Register_Cron' ) ) {
 					$item->unregister();
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 	}
 }

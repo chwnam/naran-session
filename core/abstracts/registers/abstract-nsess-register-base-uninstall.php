@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Uninstall register
+ * NSESS: Uninstall register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Uninstall' ) ) {
-	class NSESS_Register_Uninstall implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Uninstall' ) ) {
+	abstract class NSESS_Register_Base_Uninstall implements NSESS_Register {
 		public function __construct() {
 			register_uninstall_hook( nsess()->get_main_file(), [ $this, 'register' ] );
 		}
@@ -23,10 +23,6 @@ if ( ! class_exists( 'NSESS_Register_Uninstall' ) ) {
 					$item->register();
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 	}
 }

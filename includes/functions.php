@@ -1,161 +1,191 @@
 <?php
 /**
- * NSESS: functions.php
+ * NSESS: session functions
  */
 
-/* ABSPATH check skipped because of phpunit */
+/* ABSPATH check */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
-if ( ! function_exists( 'nsess' ) ) {
+
+if ( ! function_exists( 'nsess_start' ) ) {
 	/**
-	 * NSESS_Main alias.
+	 * Initialize naran session.
 	 *
-	 * @return NSESS_Main
+	 * Be careful when calling this method after headers are sent.
 	 */
-	function nsess(): NSESS_Main {
-		return NSESS_Main::get_instance();
+	function nsess_start() {
+		nsess()->session->initialize();
 	}
 }
 
 
-if ( ! function_exists( 'nsess_parse_module' ) ) {
+if ( ! function_exists( 'nsess_get' ) ) {
 	/**
-	 * Retrieve submodule by given string notaion.
+	 * Get session value by key.
 	 *
-	 * @param string $module_notation
+	 * Initialization is automatic, but note that initialization must be done before headers are sent.
 	 *
-	 * @return object|false;
+	 * @param string $key     Identifier key.
+	 * @param mixed  $default Alternative value if key not found.
+	 *
+	 * @return mixed
 	 */
-	function nsess_parse_module( string $module_notation ) {
-		return nsess()->get_module_by_notation( $module_notation );
+	function nsess_get( string $key, $default = null ) {
+		return nsess()->session->get( $key, $default );
 	}
 }
 
 
-if ( ! function_exists( 'nsess_parse_callback' ) ) {
+if ( ! function_exists( 'nsess_set' ) ) {
 	/**
-	 * Return submodule's callback method by given string notation.
+	 * Set session value by key.
 	 *
-	 * @param Closure|array|string $maybe_callback
+	 * Like nsess_get, initialization is automatic.
 	 *
-	 * @return callable|array|string
-	 * @throws NSESS_Callback_Exception
-	 * @example foo.bar@baz ---> array( nsess()->foo->bar, 'baz )
+	 * @param string   $key
+	 * @param mixed    $value
+	 * @param int|null $timeout
 	 */
-	function nsess_parse_callback( $maybe_callback ) {
-		return nsess()->parse_callback( $maybe_callback );
+	function nsess_set( string $key, $value, ?int $timeout = null ) {
+		nsess()->session->set( $key, $value );
 	}
 }
 
 
-if ( ! function_exists( 'nsess_option' ) ) {
+if ( ! function_exists( 'nsess_has' ) ) {
 	/**
-	 * Alias function for option.
-	 *
-	 * @return NSESS_Register_Option|null
+	 * Check if session has key
 	 */
-	function nsess_option(): ?NSESS_Register_Option {
-		return nsess()->registers->option;
+	function nsess_has( string $key ): bool {
+		return nsess()->session->has( $key );
 	}
 }
 
 
-if ( ! function_exists( 'nsess_comment_meta' ) ) {
+if ( ! function_exists( 'nsess_get_expiration' ) ) {
 	/**
-	 * Alias function for comment meta.
+	 * Get key's expiration timeout.
 	 *
-	 * @return NSESS_Register_Comment_Meta|null
+	 * @param string $key
+	 *
+	 * @return int
 	 */
-	function nsess_comment_meta(): ?NSESS_Register_Comment_Meta {
-		return nsess()->registers->comment_meta;
+	function nsess_get_expiration( string $key ): int {
+		return nsess()->session->get_expiration( $key );
 	}
 }
 
 
-if ( ! function_exists( 'nsess_post_meta' ) ) {
+if ( ! function_exists( 'nsess_remove' ) ) {
 	/**
-	 * Alias function for post meta.
+	 * Remove session value by key.
 	 *
-	 * @return NSESS_Register_Post_Meta|null
+	 * @param string $key
 	 */
-	function nsess_post_meta(): ?NSESS_Register_Post_Meta {
-		return nsess()->registers->post_meta;
+	function nsess_remove( string $key ) {
+		nsess()->session->set( $key, null );
 	}
 }
 
 
-if ( ! function_exists( 'nsess_term_meta' ) ) {
+if ( ! function_exists( 'nsess_reset' ) ) {
 	/**
-	 * Alias function for term meta.
-	 *
-	 * @return NSESS_Register_Term_Meta|null
+	 * Reset session.
 	 */
-	function nsess_term_meta(): ?NSESS_Register_Term_Meta {
-		return nsess()->registers->term_meta;
+	function nsess_reset() {
+		nsess()->session->reset();
 	}
 }
 
 
-if ( ! function_exists( 'nsess_user_meta' ) ) {
+if ( ! function_exists( 'nsess_destroy' ) ) {
 	/**
-	 * Alias function for user meta.
-	 *
-	 * @return NSESS_Register_User_Meta|null
+	 * Destory session.
 	 */
-	function nsess_user_meta(): ?NSESS_Register_User_Meta {
-		return nsess()->registers->user_meta;
+	function nsess_destroy() {
+		nsess()->session->destroy();
 	}
 }
 
 
-if ( ! function_exists( 'nsess_script_debug' ) ) {
-	/**
-	 * Return SCRIPT_DEBUG.
-	 *
-	 * @return bool
-	 */
-	function nsess_script_debug(): bool {
-		return apply_filters( 'nsess_script_debug', defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG );
-	}
-}
-
-
-if ( ! function_exists( 'nsess_format_callback' ) ) {
-	/**
-	 * Format callback method or function.
-	 *
-	 * This method does not care about $callable is actually callable.
-	 *
-	 * @param Closure|array|string $callback
-	 *
-	 * @return string
-	 */
-	function nsess_format_callback( $callback ): string {
-		if ( is_string( $callback ) ) {
-			return $callback;
-		} elseif (
-			( is_array( $callback ) && 2 === count( $callback ) ) &&
-			( is_object( $callback[0] ) || is_string( $callback[0] ) ) &&
-			is_string( $callback[1] )
-		) {
-			if ( method_exists( $callback[0], $callback[1] ) ) {
-				try {
-					$ref = new ReflectionClass( $callback[0] );
-					if ( $ref->isAnonymous() ) {
-						return "{AnonymousClass}::{$callback[1]}";
-					}
-				} catch ( ReflectionException $e ) {
-				}
-			}
-
-			if ( is_string( $callback[0] ) ) {
-				return "{$callback[0]}::{$callback[1]}";
-			} elseif ( is_object( $callback[0] ) ) {
-				return get_class( $callback[0] ) . '::' . $callback[1];
-			}
-		} elseif ( $callback instanceof Closure ) {
-			return '{Closure}';
+if ( ! function_exists( 'nsess_default_constants' ) ) {
+	function nsess_default_constants() {
+		if ( ! defined( 'NSESS_COOKIE_NAME' ) ) {
+			define( 'NSESS_COOKIE_NAME', 'nsess' );
 		}
 
-		return '{Unknown}';
+		if ( ! defined( 'NSESS_TIMEOUT' ) ) {
+			define( 'NSESS_TIMEOUT', DAY_IN_SECONDS );
+		}
+
+		if ( ! defined( 'NSESS_COOKIEPATH' ) ) {
+			define( 'NSESS_COOKIEPATH', '' );
+		}
+
+		if ( ! defined( 'NSESS_COOKIE_DOMAIN' ) ) {
+			define( 'NSESS_COOKIE_DOMAIN', '' );
+		}
+
+		if ( ! defined( 'NSESS_SECURE' ) ) {
+			define( 'NSESS_SECURE', '' );
+		}
+
+		if ( ! defined( 'NSESS_HTTP_ONLY' ) ) {
+			define( 'NSESS_HTTP_ONLY', true );
+		}
+	}
+}
+
+
+if ( ! function_exists( 'nsess_cookie_name' ) ) {
+	function nsess_cookie_name(): string {
+		return apply_filters( 'nsess_cookie_name', NSESS_COOKIE_NAME ?: 'nsess' );
+	}
+}
+
+
+if ( ! function_exists( 'nsess_timeout' ) ) {
+	function nsess_timeout(): int {
+		$timeout = intval( NSESS_TIMEOUT );
+		$timeout = $timeout > 0 ? $timeout : DAY_IN_SECONDS;
+
+		return apply_filters( 'nsess_timeout', $timeout );
+	}
+}
+
+
+if ( ! function_exists( 'nsess_cookie_path' ) ) {
+	function nsess_cookie_path(): string {
+		return apply_filters( 'nsess_cookie_path', NSESS_COOKIEPATH ?: COOKIEPATH );
+	}
+}
+
+if ( ! function_exists( 'nsess_cookie_domain' ) ) {
+	function nsess_cookie_domain(): string {
+		return apply_filters( 'nsess_cookie_domain', NSESS_COOKIE_DOMAIN ?: COOKIE_DOMAIN );
+	}
+}
+
+
+if ( ! function_exists( 'nsess_secure_cookie' ) ) {
+	function nsess_secure_cookie(): bool {
+		if ( '' === NSESS_SECURE ) {
+			$secure_cookie = is_ssl();
+		} else {
+			$secure_cookie = filter_var( NSESS_SECURE, FILTER_VALIDATE_BOOLEAN );
+		}
+
+		return apply_filters( 'nsess_secure_cookie', $secure_cookie );
+	}
+}
+
+
+if ( ! function_exists( 'nsess_http_only_cookie' ) ) {
+	function nsess_http_only_cookie(): bool {
+		$http_only = filter_var( NSESS_HTTP_ONLY, FILTER_VALIDATE_BOOLEAN );
+
+		return apply_filters( 'nsess_http_only_cookie', $http_only );
 	}
 }

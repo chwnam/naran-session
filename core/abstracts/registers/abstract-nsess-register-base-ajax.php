@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: AJAX (admin-ajax.php, or wc-ajax) register.
+ * NSESS: AJAX (admin-ajax.php, or wc-ajax) register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Ajax' ) ) {
-	class NSESS_Register_Ajax implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Ajax' ) ) {
+	abstract class NSESS_Register_Base_Ajax implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		private array $inner_handlers = [];
@@ -56,10 +56,6 @@ if ( ! class_exists( 'NSESS_Register_Ajax' ) ) {
 					wp_send_json_error( $error, 404 );
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 	}
 }

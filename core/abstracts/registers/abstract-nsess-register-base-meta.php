@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Meta register (abstract)
+ * NSESS: Register meta base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Reigster_Meta' ) ) {
-	abstract class NSESS_Reigster_Meta implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Reigster_Base_Meta' ) ) {
+	abstract class NSESS_Reigster_Base_Meta implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		/**

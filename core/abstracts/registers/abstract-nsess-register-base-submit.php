@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Submit (admin-post.php) register
+ * NSESS: Submit (admin-post.php) register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Submit' ) ) {
-	class NSESS_Register_Submit implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Submit' ) ) {
+	abstract class NSESS_Register_Base_Submit implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		private array $inner_handlers = [];
@@ -58,10 +58,6 @@ if ( ! class_exists( 'NSESS_Register_Submit' ) ) {
 					wp_die( $error, 404 );
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 	}
 }

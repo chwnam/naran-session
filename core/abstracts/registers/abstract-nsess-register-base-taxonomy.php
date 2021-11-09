@@ -1,6 +1,6 @@
 <?php
 /**
- * NSESS: Custom taxonomy register
+ * NSESS: Custom taxonomy register base
  */
 
 /* ABSPATH check */
@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'NSESS_Register_Taxonomy' ) ) {
-	class NSESS_Register_Taxonomy implements NSESS_Register {
+if ( ! class_exists( 'NSESS_Register_Base_Taxonomy' ) ) {
+	abstract class NSESS_Register_Base_Taxonomy implements NSESS_Register {
 		use NSESS_Hook_Impl;
 
 		public function __construct() {
@@ -26,10 +26,6 @@ if ( ! class_exists( 'NSESS_Register_Taxonomy' ) ) {
 					$item->register();
 				}
 			}
-		}
-
-		public function get_items(): Generator {
-			yield null;
 		}
 	}
 }
